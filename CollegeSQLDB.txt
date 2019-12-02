@@ -1,0 +1,77 @@
+CREATE TABLE Instructor_schema(
+            name varchar2(255),
+            department varchar2(50) NOT NULL,
+            office varchar2(20) NOT NULL,
+            CONSTRAINT pk_name_instructor 
+            PRIMARY KEY (name) 
+            );
+            
+           
+CREATE TABLE Class_schema(
+            schedulenum int ,
+            semester varchar2(4),
+            department varchar2(50) NOT NULL,
+            --classnum varchar2(20) NOT NULL,
+            num int NOT NULL,
+            days varchar2(255) NOT NULL,
+            time varchar2(255) NOT NULL,
+            place varchar2(255) NOT NULL,
+            enrollement int,
+            PRIMARY KEY (schedulenum, semester),
+            UNIQUE (schedulenum),
+            UNIQUE (semester, schedulenum),
+            CHECK (regexp_like(num, '[0-9][0-9][0-9]')),
+            CONSTRAINT check_semester_class
+            CHECK (REGEXP_LIKE (semester, '[SF][0-9][0-9]'))      
+            ); 
+            
+        
+CREATE TABLE Teaches_schema(
+            name varchar2(30) NOT NULL,
+            schedulenum int,
+            semester varchar2(10),
+            CONSTRAINT pk_sched_semester
+            PRIMARY KEY (schedulenum, semester),
+            --CONSTRAINT unq_sched_teaches
+            --UNIQUE (schedulenum, semester),
+            CONSTRAINT fk_sched_teaches
+            FOREIGN KEY (schedulenum) REFERENCES Class_schema (schedulenum),
+            FOREIGN KEY (name) REFERENCES Instructor_schema (name),
+            CONSTRAINT check_semester_teaches
+            CHECK (REGEXP_LIKE (semester, '[SF][0-9][0-9]'))
+            );
+
+
+CREATE TABLE Student_schema(
+            studentnum int not null,
+            name varchar2(255) NOT NULL,
+            standing varchar2(12) NOT NULL,
+            gpa numeric(3,2) NOT NULL,
+            CONSTRAINT standing_student
+            CHECK (standing IN ('first year', 'sophomore', 'junior', 'senior')),
+            CONSTRAINT pk_id_student
+            PRIMARY KEY (studentnum),
+            CONSTRAINT check_gpa_student
+            CHECK (gpa BETWEEN 0 and 4.0)
+            );
+
+      
+CREATE TABLE Taking_schema(
+            studentnum int NOT NULL,
+            schedulenum int NOT NULL,
+            semester varchar2(10) NOT NULL,
+            grade char(5) NOT NULL,
+            CONSTRAINT pk_id_semester_sched_taking
+            PRIMARY KEY (studentnum, semester,schedulenum),
+            CONSTRAINT unq_sched_taking
+            UNIQUE (schedulenum),
+            FOREIGN KEY (studentnum) REFERENCES Student_schema (studentnum),
+            CONSTRAINT fk_sched_taking
+            FOREIGN KEY (schedulenum,semester) REFERENCES Class_schema (schedulenum,semester),
+            CONSTRAINT check_semester_taking
+            CHECK (REGEXP_LIKE (semester, '[SF][0-9][0-9]')),
+            CONSTRAINT check_grade_taking
+            CHECK (grade IN ('A', 'B', 'C', 'D', 'F'))
+            );   
+            
+           
